@@ -5,11 +5,13 @@ Live lookups against free public services. No API keys.
     PIN code  https://api.postalpincode.in/pincode/<PIN>        India Post post-office directory
     Place     https://api.postalpincode.in/postoffice/<name>    post offices by name
 
-Results are cached in memory for an hour (branch and post-office data change rarely), and every failure comes back
-as a short message the AI can pass on, never as a crash.
+Results are cached in memory for an hour (branch and post-office data change rarely). Short outages (HTTP 5xx,
+timeouts) are retried twice, and every failure that remains comes back as a short message the AI can pass on,
+never as a crash.
 """
 from __future__ import annotations
 
+import asyncio
 import time
 from typing import Any
 from urllib.parse import quote
@@ -22,6 +24,8 @@ IFSC_API = "https://ifsc.razorpay.com"
 POSTAL_API = "https://api.postalpincode.in"
 TIMEOUT = httpx.Timeout(10.0, connect=5.0)
 CACHE_SECONDS = 3600
+RETRIES = 2          # extra attempts after a 5xx or a timeout
+RETRY_DELAY = 1.0    # seconds; doubled on the second retry
 USER_AGENT = "india-kyc-mcp/0.1 (+https://github.com/AdityaKhetarpal/india-kyc-mcp)"
 
 
@@ -40,11 +44,21 @@ class Lookups:
             return 200, hit[1]
         client = self._client or httpx.AsyncClient(timeout=TIMEOUT, headers={"User-Agent": USER_AGENT})
         try:
-            response = await client.get(url)
-        except httpx.TimeoutException as e:
-            raise ServiceError("the lookup service did not answer in time; try again in a minute") from e
-        except httpx.HTTPError as e:
-            raise ServiceError(f"could not reach the lookup service ({type(e).__name__})") from e
+            # free public APIs have short hiccups (a 503 or a timeout): try again, up to RETRIES times
+            for attempt in range(RETRIES + 1):
+                last = attempt == RETRIES
+                try:
+                    response = await client.get(url)
+                except httpx.TimeoutException as e:
+                    if last:
+                        raise ServiceError("the lookup service did not answer in time; try again in a minute") from e
+                except httpx.HTTPError as e:
+                    if last:
+                        raise ServiceError(f"could not reach the lookup service ({type(e).__name__})") from e
+                else:
+                    if response.status_code < 500 or last:
+                        break
+                await asyncio.sleep(RETRY_DELAY * (attempt + 1))
         finally:
             if self._client is None:
                 await client.aclose()

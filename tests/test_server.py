@@ -45,6 +45,20 @@ async def test_service_down_is_reported_not_crashed(fake_api):
     assert r["found"] is False and "having problems (HTTP 503)" in r["error"]
 
 
+async def test_a_short_outage_is_retried(fake_api):
+    from tests import conftest
+    conftest.FLAKY["left"] = 1
+    r = await call("lookup_ifsc", ifsc="HDFC0000504")
+    assert r["found"] is True
+    assert fake_api.counter.calls == 2  # one 503, then success
+
+
+async def test_a_long_outage_gives_up_after_retries(fake_api):
+    r = await call("lookup_ifsc", ifsc="HDFC0000503")
+    assert "HTTP 503" in r["error"]
+    assert fake_api.counter.calls == 3  # first try + 2 retries
+
+
 async def test_results_are_cached(fake_api):
     await call("lookup_ifsc", ifsc="HDFC0000001")
     await call("lookup_ifsc", ifsc="HDFC0000001")

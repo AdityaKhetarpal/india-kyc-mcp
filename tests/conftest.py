@@ -35,12 +35,20 @@ PINS = {
 PLACES = {"connaught place": [office("Connaught Place", "Central Delhi", "Delhi", "110001")]}
 
 
+FLAKY = {"left": 0}
+
+
 def handler(request: httpx.Request) -> httpx.Response:
     host, path = request.url.host, request.url.path
     if host == "ifsc.razorpay.com":
         code = path.strip("/")
         if code == "HDFC0000503":  # pretend the service is down for this one
             return httpx.Response(503, text="Service Unavailable")
+        if code == "HDFC0000504" and FLAKY["left"] > 0:  # down once, then fine
+            FLAKY["left"] -= 1
+            return httpx.Response(503, text="Service Unavailable")
+        if code == "HDFC0000504":
+            return httpx.Response(200, json={**IFSC["HDFC0000001"], "IFSC": "HDFC0000504"})
         return httpx.Response(200, json=IFSC[code]) if code in IFSC else httpx.Response(404, text='"Not Found"')
     if host == "api.postalpincode.in" and path.startswith("/pincode/"):
         pin = path.rsplit("/", 1)[1]
@@ -68,6 +76,7 @@ class Counter:
 
 @pytest.fixture
 def fake_api(monkeypatch):
+    monkeypatch.setattr("india_kyc_mcp.lookups.RETRY_DELAY", 0)
     counter = Counter()
     client = httpx.AsyncClient(transport=httpx.MockTransport(counter))
     fresh = Lookups(client=client)

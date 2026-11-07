@@ -70,7 +70,8 @@ APIs every week, are in [examples/live_check.md](examples/live_check.md).
 There is also a prompt, `onboard_vendor`, that tells the assistant to extract the details from pasted text,
 call `verify_vendor` once and answer with a table and a recommendation.
 
-Every tool is marked read-only. Badly formed codes are rejected before any network call, results are cached for an
+Every tool is marked read-only. Badly formed codes are rejected before any network call, short outages of the public
+APIs (a 503 or a timeout) are retried twice, results are cached for an
 hour, and when a service is down the tool says so in plain words instead of failing.
 
 **What it does not do:** a format check proves a GSTIN or PAN is *well-formed*, not that it is registered to that
