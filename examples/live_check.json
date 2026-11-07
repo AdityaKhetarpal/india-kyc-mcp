@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-11-07 18:22 UTC",
-  "passed": 12,
+  "checked_at": "2026-11-07 18:24 UTC",
+  "passed": 14,
   "total": 14,
   "checks": [
     {
@@ -9,7 +9,7 @@
         "ifsc": "HDFC0000001"
       },
       "ok": true,
-      "seconds": 0.78,
+      "seconds": 0.79,
       "result": {
         "found": true,
         "ifsc": "HDFC0000001",
@@ -36,7 +36,7 @@
         "ifsc": "KKBK0000261"
       },
       "ok": true,
-      "seconds": 0.7,
+      "seconds": 0.64,
       "result": {
         "found": true,
         "ifsc": "KKBK0000261",
@@ -63,7 +63,7 @@
         "ifsc": "SBIN0000691"
       },
       "ok": true,
-      "seconds": 0.71,
+      "seconds": 0.62,
       "result": {
         "found": true,
         "ifsc": "SBIN0000691",
@@ -90,7 +90,7 @@
         "ifsc": "HDFC0ZZZZZZ"
       },
       "ok": true,
-      "seconds": 0.71,
+      "seconds": 0.64,
       "result": {
         "found": false,
         "ifsc": "HDFC0ZZZZZZ",
@@ -104,7 +104,7 @@
         "pincode": "110001"
       },
       "ok": true,
-      "seconds": 0.23,
+      "seconds": 0.31,
       "result": {
         "found": true,
         "pincode": "110001",
@@ -249,7 +249,7 @@
         "pincode": "560001"
       },
       "ok": true,
-      "seconds": 0.2,
+      "seconds": 0.32,
       "result": {
         "found": true,
         "pincode": "560001",
@@ -325,10 +325,12 @@
         "pincode": "999999"
       },
       "ok": true,
-      "seconds": 0.17,
+      "seconds": 0.31,
       "result": {
         "found": false,
-        "error": "the lookup service is having problems (HTTP 503)"
+        "pincode": "999999",
+        "region": "Army Post Office / Field Post Office",
+        "reason": "no post office has this PIN code"
       }
     },
     {
@@ -336,11 +338,21 @@
       "arguments": {
         "place": "Connaught Place"
       },
-      "ok": false,
-      "seconds": 0.17,
+      "ok": true,
+      "seconds": 0.33,
       "result": {
-        "found": false,
-        "error": "the lookup service is having problems (HTTP 503)"
+        "found": true,
+        "place": "Connaught Place",
+        "matches": 1,
+        "results": [
+          {
+            "post_office": "Connaught Place",
+            "pincode": "110001",
+            "district": "Central Delhi",
+            "state": "Delhi"
+          }
+        ],
+        "truncated": false
       }
     },
     {
@@ -477,13 +489,11 @@
         "city": "Mumbai",
         "state": "Maharashtra"
       },
-      "ok": false,
-      "seconds": 0.16,
+      "ok": true,
+      "seconds": 0.31,
       "result": {
-        "verdict": "review",
-        "red_flags": [
-          "address check could not run: the lookup service is having problems (HTTP 503)"
-        ],
+        "verdict": "pass",
+        "red_flags": [],
         "checked": [
           "address",
           "bank",
@@ -528,9 +538,28 @@
             }
           },
           "address": {
-            "verdict": "unknown_pincode",
-            "found": false,
-            "error": "the lookup service is having problems (HTTP 503)"
+            "verdict": "match",
+            "pincode": "400018",
+            "checks": {
+              "city": {
+                "given": "Mumbai",
+                "matches": true,
+                "pincode_district": [
+                  "Mumbai"
+                ]
+              },
+              "state": {
+                "given": "Maharashtra",
+                "matches": true,
+                "pincode_state": [
+                  "Maharashtra"
+                ]
+              }
+            },
+            "post_offices": [
+              "Worli",
+              "Worli Naka"
+            ]
           }
         }
       }
