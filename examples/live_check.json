@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-11-07 18:21 UTC",
-  "passed": 13,
+  "checked_at": "2026-11-07 18:22 UTC",
+  "passed": 12,
   "total": 14,
   "checks": [
     {
@@ -9,7 +9,7 @@
         "ifsc": "HDFC0000001"
       },
       "ok": true,
-      "seconds": 0.69,
+      "seconds": 0.78,
       "result": {
         "found": true,
         "ifsc": "HDFC0000001",
@@ -36,7 +36,7 @@
         "ifsc": "KKBK0000261"
       },
       "ok": true,
-      "seconds": 0.76,
+      "seconds": 0.7,
       "result": {
         "found": true,
         "ifsc": "KKBK0000261",
@@ -63,7 +63,7 @@
         "ifsc": "SBIN0000691"
       },
       "ok": true,
-      "seconds": 0.62,
+      "seconds": 0.71,
       "result": {
         "found": true,
         "ifsc": "SBIN0000691",
@@ -87,28 +87,15 @@
     {
       "tool": "lookup_ifsc",
       "arguments": {
-        "ifsc": "HDFC0999999"
+        "ifsc": "HDFC0ZZZZZZ"
       },
-      "ok": false,
-      "seconds": 0.68,
+      "ok": true,
+      "seconds": 0.71,
       "result": {
-        "found": true,
-        "ifsc": "HDFC0999999",
+        "found": false,
+        "ifsc": "HDFC0ZZZZZZ",
         "bank": "HDFC Bank",
-        "branch": "HDFC Bank IMPS",
-        "address": "4TH FLOOR ,HDFC BANK HOUSE, SENAPATI BAPAT MARG, PAREL , MUMBAI -13",
-        "city": "MUMBAI",
-        "district": "MUMBAI",
-        "state": "MAHARASHTRA",
-        "contact": "+919831073333",
-        "micr": null,
-        "swift": "HDFCINBB",
-        "supports": {
-          "upi": true,
-          "neft": true,
-          "rtgs": true,
-          "imps": true
-        }
+        "reason": "no branch with this IFSC (the bank code HDFC is valid, the branch part is not)"
       }
     },
     {
@@ -117,7 +104,7 @@
         "pincode": "110001"
       },
       "ok": true,
-      "seconds": 0.33,
+      "seconds": 0.23,
       "result": {
         "found": true,
         "pincode": "110001",
@@ -262,7 +249,7 @@
         "pincode": "560001"
       },
       "ok": true,
-      "seconds": 0.33,
+      "seconds": 0.2,
       "result": {
         "found": true,
         "pincode": "560001",
@@ -338,12 +325,10 @@
         "pincode": "999999"
       },
       "ok": true,
-      "seconds": 0.31,
+      "seconds": 0.17,
       "result": {
         "found": false,
-        "pincode": "999999",
-        "region": "Army Post Office / Field Post Office",
-        "reason": "no post office has this PIN code"
+        "error": "the lookup service is having problems (HTTP 503)"
       }
     },
     {
@@ -351,21 +336,11 @@
       "arguments": {
         "place": "Connaught Place"
       },
-      "ok": true,
-      "seconds": 0.34,
+      "ok": false,
+      "seconds": 0.17,
       "result": {
-        "found": true,
-        "place": "Connaught Place",
-        "matches": 1,
-        "results": [
-          {
-            "post_office": "Connaught Place",
-            "pincode": "110001",
-            "district": "Central Delhi",
-            "state": "Delhi"
-          }
-        ],
-        "truncated": false
+        "found": false,
+        "error": "the lookup service is having problems (HTTP 503)"
       }
     },
     {
@@ -502,11 +477,13 @@
         "city": "Mumbai",
         "state": "Maharashtra"
       },
-      "ok": true,
-      "seconds": 0.34,
+      "ok": false,
+      "seconds": 0.16,
       "result": {
-        "verdict": "pass",
-        "red_flags": [],
+        "verdict": "review",
+        "red_flags": [
+          "address check could not run: the lookup service is having problems (HTTP 503)"
+        ],
         "checked": [
           "address",
           "bank",
@@ -551,28 +528,9 @@
             }
           },
           "address": {
-            "verdict": "match",
-            "pincode": "400018",
-            "checks": {
-              "city": {
-                "given": "Mumbai",
-                "matches": true,
-                "pincode_district": [
-                  "Mumbai"
-                ]
-              },
-              "state": {
-                "given": "Maharashtra",
-                "matches": true,
-                "pincode_state": [
-                  "Maharashtra"
-                ]
-              }
-            },
-            "post_offices": [
-              "Worli",
-              "Worli Naka"
-            ]
+            "verdict": "unknown_pincode",
+            "found": false,
+            "error": "the lookup service is having problems (HTTP 503)"
           }
         }
       }

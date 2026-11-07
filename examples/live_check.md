@@ -1,22 +1,22 @@
-# Live check (2026-11-07 18:21 UTC)
+# Live check (2026-11-07 18:22 UTC)
 
 Real calls to the public APIs through an MCP client session.
 
 | Result | Tool | Arguments | Time |
 |---|---|---|---|
-| ✅ | `lookup_ifsc` | ifsc=HDFC0000001 | 0.69s |
-| ✅ | `lookup_ifsc` | ifsc=KKBK0000261 | 0.76s |
-| ✅ | `lookup_ifsc` | ifsc=SBIN0000691 | 0.62s |
-| ❌ | `lookup_ifsc` | ifsc=HDFC0999999 | 0.68s |
-| ✅ | `lookup_pincode` | pincode=110001 | 0.33s |
-| ✅ | `lookup_pincode` | pincode=560001 | 0.33s |
-| ✅ | `lookup_pincode` | pincode=999999 | 0.31s |
-| ✅ | `find_pincode` | place=Connaught Place | 0.34s |
+| ✅ | `lookup_ifsc` | ifsc=HDFC0000001 | 0.78s |
+| ✅ | `lookup_ifsc` | ifsc=KKBK0000261 | 0.7s |
+| ✅ | `lookup_ifsc` | ifsc=SBIN0000691 | 0.71s |
+| ✅ | `lookup_ifsc` | ifsc=HDFC0ZZZZZZ | 0.71s |
+| ✅ | `lookup_pincode` | pincode=110001 | 0.23s |
+| ✅ | `lookup_pincode` | pincode=560001 | 0.2s |
+| ✅ | `lookup_pincode` | pincode=999999 | 0.17s |
+| ❌ | `find_pincode` | place=Connaught Place | 0.17s |
 | ✅ | `check_address` | pincode=560001, city=Bangalore, state=Karnataka | 0.0s |
 | ✅ | `check_address` | pincode=560001, city=Mumbai, state=Maharashtra | 0.0s |
 | ✅ | `validate_gstin` | gstin=27AAPFU0939F1ZV | 0.0s |
 | ✅ | `validate_gstin` | gstin=27AAPFU0939F1ZW | 0.0s |
-| ✅ | `verify_vendor` | gstin=27AAPFU0939F1ZV, pan=AAPFU0939F, ifsc=HDFC0000001, pincode=400018, city=Mumbai, state=Maharashtra | 0.34s |
+| ❌ | `verify_vendor` | gstin=27AAPFU0939F1ZV, pan=AAPFU0939F, ifsc=HDFC0000001, pincode=400018, city=Mumbai, state=Maharashtra | 0.16s |
 | ✅ | `verify_vendor` | gstin=27AAPFU0939F1ZV, pan=AAPFU0939G, ifsc=HDFC0000001, pincode=560001, city=Mumbai, state=Karnataka | 0.0s |
 
 ## Responses
@@ -93,27 +93,14 @@ Real calls to the public APIs through an MCP client session.
 }
 ```
 
-### `lookup_ifsc` · ifsc=HDFC0999999
+### `lookup_ifsc` · ifsc=HDFC0ZZZZZZ
 
 ```json
 {
-  "found": true,
-  "ifsc": "HDFC0999999",
+  "found": false,
+  "ifsc": "HDFC0ZZZZZZ",
   "bank": "HDFC Bank",
-  "branch": "HDFC Bank IMPS",
-  "address": "4TH FLOOR ,HDFC BANK HOUSE, SENAPATI BAPAT MARG, PAREL , MUMBAI -13",
-  "city": "MUMBAI",
-  "district": "MUMBAI",
-  "state": "MAHARASHTRA",
-  "contact": "+919831073333",
-  "micr": null,
-  "swift": "HDFCINBB",
-  "supports": {
-    "upi": true,
-    "neft": true,
-    "rtgs": true,
-    "imps": true
-  }
+  "reason": "no branch with this IFSC (the bank code HDFC is valid, the branch part is not)"
 }
 ```
 
@@ -337,9 +324,7 @@ Real calls to the public APIs through an MCP client session.
 ```json
 {
   "found": false,
-  "pincode": "999999",
-  "region": "Army Post Office / Field Post Office",
-  "reason": "no post office has this PIN code"
+  "error": "the lookup service is having problems (HTTP 503)"
 }
 ```
 
@@ -347,18 +332,8 @@ Real calls to the public APIs through an MCP client session.
 
 ```json
 {
-  "found": true,
-  "place": "Connaught Place",
-  "matches": 1,
-  "results": [
-    {
-      "post_office": "Connaught Place",
-      "pincode": "110001",
-      "district": "Central Delhi",
-      "state": "Delhi"
-    }
-  ],
-  "truncated": false
+  "found": false,
+  "error": "the lookup service is having problems (HTTP 503)"
 }
 ```
 
@@ -474,8 +449,10 @@ Real calls to the public APIs through an MCP client session.
 
 ```json
 {
-  "verdict": "pass",
-  "red_flags": [],
+  "verdict": "review",
+  "red_flags": [
+    "address check could not run: the lookup service is having problems (HTTP 503)"
+  ],
   "checked": [
     "address",
     "bank",
@@ -520,28 +497,9 @@ Real calls to the public APIs through an MCP client session.
       }
     },
     "address": {
-      "verdict": "match",
-      "pincode": "400018",
-      "checks": {
-        "city": {
-          "given": "Mumbai",
-          "matches": true,
-          "pincode_district": [
-            "Mumbai"
-          ]
-        },
-        "state": {
-          "given": "Maharashtra",
-          "matches": true,
-          "pincode_state": [
-            "Maharashtra"
-          ]
-        }
-      },
-      "post_offices": [
-        "Worli",
-        "Worli Naka"
-      ]
+      "verdict": "unknown_pincode",
+      "found": false,
+      "error": "the lookup service is having problems (HTTP 503)"
     }
   }
 }
