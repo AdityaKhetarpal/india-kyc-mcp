@@ -1,0 +1,3 @@
+# used by the Vercel deployment (api/index.py); for local use, pip install the package instead
+mcp>=2.3,<3
+httpx>=0.27
