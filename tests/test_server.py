@@ -33,7 +33,7 @@ async def test_lookup_ifsc(fake_api):
 
 
 async def test_lookup_ifsc_not_found_and_bad_format(fake_api):
-    r = await call("lookup_ifsc", ifsc="HDFC0999999")
+    r = await call("lookup_ifsc", ifsc="HDFC0ZZZZZZ")
     assert not r["found"] and "branch part" in r["reason"]
     r = await call("lookup_ifsc", ifsc="HDFC1")
     assert not r["found"] and "11 characters" in r["reason"]

@@ -24,7 +24,7 @@ CHECKS = [
     ("lookup_ifsc", {"ifsc": "HDFC0000001"}, lambda r: r["found"] and "HDFC" in r["bank"].upper()),
     ("lookup_ifsc", {"ifsc": "KKBK0000261"}, lambda r: r["found"] and "KOTAK" in r["bank"].upper()),
     ("lookup_ifsc", {"ifsc": "SBIN0000691"}, lambda r: r["found"] and "STATE BANK" in r["bank"].upper()),
-    ("lookup_ifsc", {"ifsc": "HDFC0999999"}, lambda r: r["found"] is False),
+    ("lookup_ifsc", {"ifsc": "HDFC0ZZZZZZ"}, lambda r: r["found"] is False),
     ("lookup_pincode", {"pincode": "110001"}, lambda r: r["found"] and "Delhi" in json.dumps(r["state"])),
     ("lookup_pincode", {"pincode": "560001"}, lambda r: r["found"] and r["state"] == "Karnataka"),
     ("lookup_pincode", {"pincode": "999999"}, lambda r: r["found"] is False),

@@ -44,15 +44,15 @@ Claude calls `verify_vendor` and gets back (this is the real output):
   "verdict": "fail",
   "red_flags": [
     "PAN AAPFU0939G is not the PAN inside the GSTIN (AAPFU0939F)",
-    "city 'Mumbai' does not match PIN code 560001 (Bengaluru)",
+    "city 'Mumbai' does not match PIN code 560001 (Bangalore)",
     "GST registration state (Maharashtra) differs from the address state (Karnataka)"
   ],
   "checked": ["address", "bank", "gstin", "pan"]
 }
 ```
 
-So it can reply: *"Don't approve yet. The PAN has a typo (last letter should be F), and the address PIN code is in
-Bengaluru, not Mumbai. Ask the vendor to confirm both."* The full responses from every tool, run against the real
+So it can reply: *"Don't approve yet. The PAN has a typo (last letter should be F), and PIN code 560001 is in
+Bangalore, not Mumbai. Ask the vendor to confirm both."* The full responses from every tool, run against the real
 APIs every week, are in [examples/live_check.md](examples/live_check.md).
 
 ## Tools
