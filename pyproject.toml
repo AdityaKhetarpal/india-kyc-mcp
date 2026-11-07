@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "india-kyc-mcp"
+version = "0.1.0"
+description = "MCP server that lets AI assistants check Indian IFSC codes, PIN codes, GSTINs and PANs."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Aditya Khetarpal" }]
+keywords = ["mcp", "model-context-protocol", "india", "kyc", "ifsc", "gstin", "pincode", "claude"]
+dependencies = ["mcp>=2.3,<3", "httpx>=0.27"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6"]
+
+[project.scripts]
+india-kyc-mcp = "india_kyc_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/AdityaKhetarpal/india-kyc-mcp"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/india_kyc_mcp"]
+
+[tool.ruff]
+line-length = 132
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

@@ -1,0 +1,37 @@
+name: Weekly live check
+
+# Calls the real IFSC and PIN code APIs every Monday and saves the responses,
+# so a change or outage in either service is noticed (and examples/live_check.md stays current).
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install -e .
+      - name: Check every tool against the real APIs
+        run: python scripts/live_check.py --save
+      - name: Save the responses
+        if: always()
+        run: |
+          git config user.name "Aditya Khetarpal"
+          git config user.email "80028073+AdityaKhetarpal@users.noreply.github.com"
+          git add examples/live_check.json examples/live_check.md
+          if git diff --cached --quiet; then echo "Nothing changed."; exit 0; fi
+          git commit -m "Live check $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then echo "Saved."; exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            sleep 20
+          done
+          exit 1
