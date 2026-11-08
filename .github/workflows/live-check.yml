@@ -1,7 +1,7 @@
 name: Weekly live check
 
-# Calls the real IFSC and PIN code APIs every Monday and saves the responses,
-# so a change or outage in either service is noticed (and examples/live_check.md stays current).
+# Calls the real IFSC and PIN code APIs every Monday and saves the responses, so a change or outage in either
+# service is noticed (and examples/live_check.md stays current). Also checks the hosted server at indiakyc.vercel.app.
 on:
   schedule:
     - cron: "17 3 * * 1"
@@ -21,6 +21,8 @@ jobs:
       - run: pip install -e .
       - name: Check every tool against the real APIs
         run: python scripts/live_check.py --save
+      - name: Check the hosted server on Vercel the same way
+        run: python scripts/live_check.py --url https://indiakyc.vercel.app/mcp
       - name: Save the responses
         if: always()
         run: |

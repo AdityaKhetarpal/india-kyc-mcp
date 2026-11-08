@@ -4,6 +4,7 @@ calls the tools). Run weekly on GitHub Actions so a change in either API is noti
 
     python scripts/live_check.py            # prints a report, exits 1 if a check fails
     python scripts/live_check.py --save     # also writes examples/live_check.json and examples/live_check.md
+    python scripts/live_check.py --url https://indiakyc.vercel.app/mcp   # the hosted server, over HTTP
 """
 import asyncio
 import json
@@ -40,9 +41,9 @@ CHECKS = [
 ]
 
 
-async def run() -> list[dict]:
+async def run(url: str | None = None) -> list[dict]:
     rows = []
-    async with Client(server) as client:
+    async with Client(url or server) as client:
         for tool, args, expect in CHECKS:
             start = time.perf_counter()
             result = await client.call_tool(tool, args)
@@ -71,11 +72,13 @@ def markdown(rows: list[dict], when: str) -> str:
 
 
 def main() -> int:
-    rows = asyncio.run(run())
+    url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else None
+    print(f"checking {'the hosted server at ' + url if url else 'the server in-process'}")
+    rows = asyncio.run(run(url))
     when = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     passed = sum(r["ok"] for r in rows)
     print(f"\n{passed}/{len(rows)} live checks passed")
-    if "--save" in sys.argv:
+    if "--save" in sys.argv and not url:
         (ROOT / "examples").mkdir(exist_ok=True)
         (ROOT / "examples" / "live_check.json").write_text(
             json.dumps({"checked_at": when, "passed": passed, "total": len(rows), "checks": rows}, indent=2,
@@ -83,7 +86,8 @@ def main() -> int:
         (ROOT / "examples" / "live_check.md").write_text(markdown(rows, when) + "\n")
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
-            f.write(markdown(rows, when).split("## Responses")[0])
+            title = f"Hosted server ({url})" if url else "In-process server"
+            f.write(f"## {title}\n\n" + markdown(rows, when).split("## Responses")[0])
     return 0 if passed == len(rows) else 1
 
 
