@@ -1,3 +1,5 @@
+<img src="src/india_kyc_mcp/site/icon.svg" width="64" height="64" alt="india-kyc-mcp logo: a map pin with a 3-pin socket in it">
+
 # india-kyc-mcp
 
 **An MCP server that lets AI assistants check Indian bank, address and tax details during onboarding.**
@@ -134,6 +136,7 @@ src/india_kyc_mcp/
   lookups.py       live IFSC and PIN code lookups (httpx, 1-hour cache, clear errors)
   validators.py    offline GSTIN / PAN / IFSC / PIN checks
   web.py           the hosted version: stateless HTTP endpoint at /mcp + landing page (runs on Vercel)
+  site/            the landing page, logo, favicons, share image and fonts (IBM Plex, SIL OFL)
   data/            bank codes and names (from razorpay/ifsc, MIT)
 tests/             tools called through a real MCP client session, plus the hosted HTTP endpoint
 app.py             Vercel entry point

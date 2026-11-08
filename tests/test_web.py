@@ -38,3 +38,17 @@ def test_mcp_over_http_without_a_session(client):
 def test_endpoint_is_exactly_mcp_no_redirect(client):
     r = client.post("/mcp", json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}, headers=HEADERS)
     assert r.status_code == 200
+
+
+def test_logo_icons_and_fonts(client):
+    page = client.get("/").text
+    assert 'href="/icon.svg"' in page and "/og.png" in page and "{{" not in page  # every placeholder filled
+    files = {"/icon.svg": "image/svg+xml", "/favicon.ico": "image/x-icon", "/apple-touch-icon.png": "image/png"}
+    files["/og.png"] = "image/png"
+    for path, kind in files.items():
+        r = client.get(path)
+        assert r.status_code == 200 and r.headers["content-type"].startswith(kind) and r.content, path
+    assert client.get("/fonts/ibm-plex-sans-latin-400-normal.woff2").headers["content-type"] == "font/woff2"
+    # only the bundled font files are served, nothing else from disk
+    assert client.get("/fonts/..%2F..%2Fweb.py").status_code == 404
+    assert client.get("/fonts/OFL.txt").status_code == 404

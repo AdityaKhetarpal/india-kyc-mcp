@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>India KYC MCP server</title>
+<meta name="description" content="A remote MCP server that lets Claude, Cursor and other AI assistants check Indian IFSC codes, PIN codes, GSTINs and PANs.">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f7f6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a1413" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="India KYC MCP server">
+<meta property="og:description" content="Let your AI assistant check Indian IFSC codes, PIN codes, GSTINs and PANs. Free, no API key.">
+<meta property="og:url" content="{{PUBLIC_URL}}">
+<meta property="og:image" content="{{PUBLIC_URL}}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{PUBLIC_URL}}/og.png">
+<link rel="preload" href="/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/ibm-plex-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+  // play the opening animation only for people who haven't asked their device for less motion
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.documentElement.classList.add("anim");
+    // if the animation library never loads, show everything anyway
+    setTimeout(function () { if (!window.__played) document.documentElement.classList.remove("anim"); }, 2500);
+  }
+</script>
+<style>
+@font-face{font-family:"Plex";src:url(/fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Plex";src:url(/fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Plex";src:url(/fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2");font-weight:600 700;font-display:swap}
+@font-face{font-family:"Plex Mono";src:url(/fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Plex Mono";src:url(/fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2");font-weight:500 700;font-display:swap}
+
+:root{
+  --bg:#f7f6f1;--surface:#ffffff;--sunk:#efede6;--ink:#10201e;--muted:#58625f;--line:#dfdcd2;
+  --brand:#0b3b38;--mark:#0b3b38;--marigold:#f2a900;--marigold-ink:#8a5a00;
+  --pass:#0e7a4f;--pass-bg:#e3f3ea;--flag:#bf3a1f;--flag-bg:#fbe9e3;
+  --code:#0b3b38;--code-ink:#e3efec;--code-dim:#8fb3ad;
+  --sans:"Plex",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0a1413;--surface:#10201e;--sunk:#0d1a19;--ink:#e6eeec;--muted:#97a8a4;--line:#1f3532;
+  --brand:#e6eeec;--mark:#e6eeec;--marigold-ink:#f2b62a;
+  --pass:#4cc38a;--pass-bg:#11302a;--flag:#ff7f61;--flag-bg:#38201b;
+  --code:#06100f;--code-ink:#dbe8e5;--code-dim:#7f9a95;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-color:var(--marigold)}
+code,pre,.mono{font-family:var(--mono)}
+:focus-visible{outline:2px solid var(--marigold);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* header */
+.nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .2s}
+.nav.stuck{border-bottom-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:24px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:16px;letter-spacing:-.01em;white-space:nowrap}
+.brand svg{width:26px;height:26px;flex:none;overflow:visible}
+.links{display:flex;gap:22px;margin-left:auto;font-size:14.5px;color:var(--muted)}
+.links a{text-decoration:none}
+.links a:hover{color:var(--ink)}
+.links .gh{color:var(--ink);font-weight:500}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px;align-items:center;padding-top:72px;padding-bottom:88px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font:500 13px/1 var(--mono);color:var(--muted);margin-bottom:20px}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--pass);box-shadow:0 0 0 4px var(--pass-bg)}
+h1{font-size:clamp(34px,5.2vw,56px);line-height:1.04;letter-spacing:-.035em;font-weight:600;margin:0 0 20px;text-wrap:balance}
+h1 em{font-style:normal;background:linear-gradient(transparent 62%,color-mix(in srgb,var(--marigold) 55%,transparent) 62%,color-mix(in srgb,var(--marigold) 55%,transparent) 92%,transparent 92%)}
+.lead{font-size:18px;color:var(--muted);margin:0 0 28px;max-width:34em}
+.url{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 16px;max-width:520px}
+.url code{flex:1;min-width:0;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{font:500 14px/1 var(--sans);border:0;border-radius:8px;padding:10px 14px;cursor:pointer;background:var(--brand);color:var(--bg);white-space:nowrap}
+.btn:hover{filter:brightness(1.15)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.under{font-size:14px;color:var(--muted);margin:14px 0 0}
+
+/* the vendor check card */
+.check{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 0 var(--line),0 24px 48px -28px rgba(11,59,56,.35);overflow:hidden}
+.check-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+.check-head b{font:500 14px var(--mono);color:var(--ink)}
+.args{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;padding:14px 18px;background:var(--sunk);border-bottom:1px solid var(--line);font:13px/1.55 var(--mono)}
+.args dt{color:var(--muted)}
+.args dd{margin:0;overflow-wrap:anywhere}
+.rows{list-style:none;margin:0;padding:6px 0}
+.row{display:grid;grid-template-columns:22px 64px 1fr;gap:12px;align-items:start;padding:10px 18px;font-size:14.5px;line-height:1.45}
+.row .what{font-weight:600}
+.row .why{color:var(--muted)}
+.row.flag .why{color:var(--ink)}
+.dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;margin-top:-1px}
+.dot svg{width:12px;height:12px}
+.pass .dot{background:var(--pass-bg);color:var(--pass)}
+.flag .dot{background:var(--flag-bg);color:var(--flag)}
+.verdict{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-top:1px solid var(--line)}
+.verdict span{font-size:13.5px;color:var(--muted)}
+.stamp{font:600 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--flag);border:1.5px solid currentColor;border-radius:6px;padding:7px 10px}
+.anim .check .row,.anim .check .verdict{opacity:0}
+
+/* sections */
+section{padding:72px 0;border-top:1px solid var(--line)}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:56px}
+h2{font-size:clamp(26px,3.2vw,34px);line-height:1.12;letter-spacing:-.025em;font-weight:600;margin:0 0 12px;text-wrap:balance}
+.sec-head p{color:var(--muted);margin:0}
+.kicker{font:500 13px var(--mono);color:var(--marigold-ink);margin-bottom:12px}
+
+/* connect */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tab{font:500 14.5px var(--sans);background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px 12px;margin-bottom:-1px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--marigold)}
+.panel p{color:var(--muted);margin:0 0 12px}
+.panel p b{color:var(--ink);font-weight:500}
+.codebox{display:flex;align-items:flex-start;gap:8px;background:var(--code);border-radius:12px;margin:0 0 12px;padding-right:10px}
+.code{flex:1;min-width:0;color:var(--code-ink);padding:16px 18px;font:14px/1.6 var(--mono);overflow-x:auto;white-space:pre;margin:0}
+.codebox .copy{flex:none;margin-top:11px;font:500 12.5px var(--sans);background:rgba(255,255,255,.1);color:var(--code-ink);border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:6px 10px;cursor:pointer}
+.codebox .copy:hover{background:rgba(255,255,255,.18)}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px;margin-bottom:8px;color:var(--muted)}
+.steps li::before{content:counter(s);font:500 12px/22px var(--mono);text-align:center;width:22px;height:22px;border-radius:50%;background:var(--sunk);border:1px solid var(--line);color:var(--ink)}
+.steps b{color:var(--ink);font-weight:500}
+
+/* tools */
+.groups{display:grid;gap:28px}
+.group h3{display:flex;align-items:center;gap:10px;font:500 13px var(--mono);color:var(--muted);margin:0 0 8px;letter-spacing:.02em}
+.group h3 svg{width:14px;height:14px}
+.tool{display:grid;grid-template-columns:170px 1fr auto;gap:16px;align-items:baseline;padding:12px 0;border-top:1px solid var(--line)}
+.tool code{font-size:14px;font-weight:500}
+.tool span{color:var(--muted)}
+.chip{font:500 12px/1 var(--mono);padding:5px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.live{color:var(--pass);border-color:color-mix(in srgb,var(--pass) 35%,transparent)}
+.chip.both{color:var(--marigold-ink);border-color:color-mix(in srgb,var(--marigold) 50%,transparent)}
+
+/* try it */
+.try form{display:flex;gap:8px;margin-bottom:12px}
+.try input{flex:1;min-width:0;font:16px var(--mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-transform:uppercase}
+.try input::placeholder{text-transform:none;font-family:var(--sans);color:var(--muted)}
+.try input:focus{outline:none;border-color:var(--marigold);box-shadow:0 0 0 3px color-mix(in srgb,var(--marigold) 25%,transparent)}
+.eg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px;color:var(--muted)}
+.eg button{font:13px var(--mono);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:5px 10px;cursor:pointer}
+.eg button:hover{border-color:var(--marigold)}
+.out{margin-top:20px;background:var(--surface);border:1px solid var(--line);border-radius:14px;min-height:64px}
+.out[hidden]{display:none}
+.out-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.out-head b{font-weight:600}
+.out-head code{margin-left:auto;font-size:12.5px;color:var(--muted)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0;padding:14px 18px;font-size:14.5px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;overflow-wrap:anywhere}
+.out details{border-top:1px solid var(--line);padding:10px 18px;font-size:13.5px;color:var(--muted)}
+.out summary{cursor:pointer}
+.out pre{font-size:12.5px;line-height:1.5;color:var(--ink);overflow-x:auto;margin:10px 0 4px}
+.wait{padding:20px 18px;color:var(--muted);font-size:14.5px}
+.note{font-size:13.5px;color:var(--muted);margin:16px 0 0}
+
+footer{border-top:1px solid var(--line);padding:28px 0 40px;font-size:14px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr);gap:40px;padding-top:44px;padding-bottom:64px}
+  .sec-head{grid-template-columns:minmax(0,1fr);gap:24px}
+}
+@media (max-width:640px){
+  .links a:not(.gh){display:none}
+  section{padding:56px 0}
+  .lead{font-size:17px}
+  .tool{grid-template-columns:1fr auto;gap:2px 12px}
+  .tool span{grid-column:1/-1;grid-row:2}
+  .row{grid-template-columns:22px 1fr;gap:4px 12px}
+  .row .why{grid-column:2}
+}
+</style>
+</head>
+<body>
+<header class="nav" id="top">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="india-kyc-mcp, home">
+      <svg viewBox="4 1 24 30" aria-hidden="true">
+        <path d="M16 30C11.6 25.4 4.5 19.6 4.5 12.9A11.5 11.5 0 0 1 27.5 12.9C27.5 19.6 20.4 25.4 16 30Z" fill="var(--mark)"/>
+        <circle class="earth" cx="16" cy="8.6" r="2.9" fill="var(--marigold)"/>
+        <circle cx="11.2" cy="16.8" r="2.3" fill="var(--bg)"/>
+        <circle cx="20.8" cy="16.8" r="2.3" fill="var(--bg)"/>
+      </svg>
+      india-kyc-mcp
+    </a>
+    <nav class="links" aria-label="Page">
+      <a href="#connect">Connect</a>
+      <a href="#tools">Tools</a>
+      <a href="#try">Try it</a>
+      <a class="gh" href="{{REPO}}">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap hero">
+  <div>
+    <div class="eyebrow"><i></i>Remote MCP server · free · no API key</div>
+    <h1>Let your AI assistant check <em>Indian KYC</em> details</h1>
+    <p class="lead">Connect Claude, Cursor or any MCP client to one URL. It can then look up IFSC and PIN codes live, check GSTINs and PANs, and run a full vendor onboarding check in one call, instead of guessing.</p>
+    <div class="url">
+      <code id="u">{{MCP_URL}}</code>
+      <button class="btn" type="button" data-copy="#u">Copy URL</button>
+    </div>
+    <p class="under">Bank, tax and address checks: the three pins in the logo.</p>
+  </div>
+
+  <figure class="check" aria-label="Example: verify_vendor on a vendor with three problems" style="margin:0">
+    <div class="check-head"><b>verify_vendor</b><span>Real output, saved by the weekly live check</span></div>
+    <dl class="args">
+      <dt>gstin</dt><dd>27AAPFU0939F1ZV</dd>
+      <dt>pan</dt><dd>AAPFU0939G</dd>
+      <dt>ifsc</dt><dd>HDFC0000001</dd>
+      <dt>address</dt><dd>Mumbai, Karnataka 560001</dd>
+    </dl>
+    <ol class="rows">
+      <li class="row pass"><span class="dot">{{OK}}</span><span class="what">GSTIN</span><span class="why">Valid, registered in Maharashtra, check digit correct</span></li>
+      <li class="row flag"><span class="dot">{{NO}}</span><span class="what">PAN</span><span class="why">Not the PAN inside the GSTIN (AAPFU0939F)</span></li>
+      <li class="row pass"><span class="dot">{{OK}}</span><span class="what">Bank</span><span class="why">HDFC Bank, Nariman Point · UPI, NEFT, RTGS, IMPS</span></li>
+      <li class="row flag"><span class="dot">{{NO}}</span><span class="what">City</span><span class="why">PIN code 560001 is in Bangalore, not Mumbai</span></li>
+      <li class="row flag"><span class="dot">{{NO}}</span><span class="what">State</span><span class="why">GST says Maharashtra, the address says Karnataka</span></li>
+    </ol>
+    <div class="verdict"><span>3 red flags. Don't onboard yet.</span><b class="stamp">Fail</b></div>
+  </figure>
+</div>
+
+<section id="connect">
+  <div class="wrap sec-head">
+    <div>
+      <div class="kicker">Connect</div>
+      <h2>One URL, any assistant</h2>
+      <p>Nothing to install or sign up for. Every tool only looks things up, so the server never sees or stores anything else.</p>
+    </div>
+    <div>
+      <div class="tabs" role="tablist" aria-label="Choose your app">
+        <button class="tab" role="tab" id="t-code" aria-controls="p-code" aria-selected="true">Claude Code</button>
+        <button class="tab" role="tab" id="t-app" aria-controls="p-app" aria-selected="false" tabindex="-1">Claude app</button>
+        <button class="tab" role="tab" id="t-cursor" aria-controls="p-cursor" aria-selected="false" tabindex="-1">Cursor</button>
+        <button class="tab" role="tab" id="t-local" aria-controls="p-local" aria-selected="false" tabindex="-1">Run it yourself</button>
+      </div>
+      <div class="panel" role="tabpanel" id="p-code" aria-labelledby="t-code">
+        <p>Run this once in your terminal:</p>
+        <div class="codebox"><pre class="code"><code>claude mcp add --transport http india-kyc {{MCP_URL}}</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="panel" role="tabpanel" id="p-app" aria-labelledby="t-app" hidden>
+        <ol class="steps">
+          <li><span>Open <b>Settings → Connectors</b> in Claude on the web or desktop.</span></li>
+          <li><span>Choose <b>Add custom connector</b>.</span></li>
+          <li><span>Paste the URL: <code>{{MCP_URL}}</code></span></li>
+        </ol>
+      </div>
+      <div class="panel" role="tabpanel" id="p-cursor" aria-labelledby="t-cursor" hidden>
+        <p>Add this to <code>.cursor/mcp.json</code>:</p>
+        <div class="codebox"><pre class="code"><code>{ "mcpServers": { "india-kyc": { "url": "{{MCP_URL}}" } } }</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="panel" role="tabpanel" id="p-local" aria-labelledby="t-local" hidden>
+        <p>Or run it on your own machine over stdio (needs Python 3.10+):</p>
+        <div class="codebox"><pre class="code"><code>pip install "git+{{REPO}}"
+claude mcp add india-kyc -- india-kyc-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap sec-head">
+    <div>
+      <div class="kicker">Tools</div>
+      <h2>Seven tools, three checks</h2>
+      <p>Live tools call Razorpay's IFSC API and India Post. Offline tools check the format and the check digit on the server itself, so they answer instantly.</p>
+    </div>
+    <div class="groups">{{TOOLS}}</div>
+  </div>
+</section>
+
+<section id="try" class="try">
+  <div class="wrap sec-head">
+    <div>
+      <div class="kicker">Try it</div>
+      <h2>Check one number here</h2>
+      <p>This box calls the same MCP endpoint your assistant would, and picks the tool from what you type.</p>
+    </div>
+    <div>
+      <form id="f" autocomplete="off">
+        <label class="sr" for="q" style="position:absolute;left:-9999px">GSTIN, PAN, IFSC, PIN code or place</label>
+        <input id="q" name="q" placeholder="GSTIN, PAN, IFSC, PIN code or a place" spellcheck="false" maxlength="60" required>
+        <button class="btn" type="submit">Check</button>
+      </form>
+      <div class="eg">Examples:
+        <button type="button">27AAPFU0939F1ZW</button>
+        <button type="button">AAPFU0939F</button>
+        <button type="button">SBIN0000691</button>
+        <button type="button">110001</button>
+        <button type="button">Connaught Place</button>
+      </div>
+      <div class="out" id="out" hidden aria-live="polite"></div>
+      <p class="note">Format checks prove a number is well-formed, not that it is registered.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Live data from <a href="https://github.com/razorpay/ifsc">Razorpay's IFSC API</a> and India Post. Not affiliated with either, or with the GST Network or Income Tax Department.</span>
+    <span><a href="{{REPO}}">Source on GitHub</a> · v{{VERSION}} · built by <a href="https://www.linkedin.com/in/adityakhetarpal">Aditya Khetarpal</a></span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js" defer></script>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // copy buttons
+  function copy(text, btn) {
+    var done = function () { var t = btn.textContent; btn.textContent = "Copied"; setTimeout(function () { btn.textContent = t; }, 1400); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+  }
+  $$("[data-copy]").forEach(function (b) { b.addEventListener("click", function () { copy($(b.dataset.copy).textContent.trim(), b); }); });
+  $$(".codebox .copy").forEach(function (b) { b.addEventListener("click", function () { copy($("code", b.parentNode).textContent.trim(), b); }); });
+
+  // the header gets a hairline once the page scrolls
+  var nav = $(".nav");
+  var onScroll = function () { nav.classList.toggle("stuck", scrollY > 8); };
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  // tabs: click or arrow keys
+  var tabs = $$(".tab");
+  function pick(t, focus) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute("aria-selected", on); x.tabIndex = on ? 0 : -1;
+      $("#" + x.getAttribute("aria-controls")).hidden = !on;
+    });
+    if (focus) t.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { pick(t); });
+    t.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (d) { e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); }
+    });
+  });
+
+  // try it: pick the tool from what was typed, then call the MCP endpoint like any client would
+  function route(raw) {
+    var v = raw.trim(), u = v.toUpperCase().replace(/\s+/g, "");
+    if (/^\d{6}$/.test(u)) return ["lookup_pincode", { pincode: u }];
+    if (/^[A-Z]{4}0[A-Z0-9]{6}$/.test(u)) return ["lookup_ifsc", { ifsc: u }];
+    if (/^[A-Z]{5}\d{4}[A-Z]$/.test(u)) return ["validate_pan", { pan: u }];
+    if (/^\d{2}[A-Z0-9]{13}$/.test(u)) return ["validate_gstin", { gstin: u }];
+    if (/^[A-Z0-9]{15}$/.test(u)) return ["validate_gstin", { gstin: u }];
+    if (/^[A-Z0-9]{10}$/.test(u) && /\d/.test(u)) return ["validate_pan", { pan: u }];
+    if (/^[A-Z0-9]{11}$/.test(u) && /\d/.test(u)) return ["lookup_ifsc", { ifsc: u }];
+    if (/^\d+$/.test(u)) return ["lookup_pincode", { pincode: u }];
+    return ["find_pincode", { place: v }];
+  }
+  function esc(s) { return String(s == null ? "—" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function yes(v) { return v ? "Yes" : "No"; }
+  function list(a, n) { a = a || []; return a.slice(0, n).join(", ") + (a.length > n ? " and " + (a.length - n) + " more" : ""); }
+
+  function summarise(tool, r) {
+    var ok, title, f = [];
+    if (tool === "validate_gstin") {
+      ok = r.valid; title = ok ? "Valid GSTIN" : "Not a valid GSTIN";
+      f = [["State", r.state && r.state + " (" + r.state_code + ")"], ["PAN inside", r.pan], ["Holder", r.holder_type], ["Check digit", r.check_digit_ok == null ? null : r.check_digit_ok ? "Correct" : "Wrong"]];
+    } else if (tool === "validate_pan") {
+      ok = r.valid_format; title = ok ? "Well-formed PAN" : "Not a valid PAN";
+      f = [["Holder", r.holder_type]];
+    } else if (tool === "lookup_ifsc") {
+      ok = r.found; title = ok ? r.bank : "No branch with this IFSC";
+      if (ok) {
+        var s = r.supports || {};
+        f = [["Branch", r.branch], ["City", r.city], ["State", r.state], ["Payments", Object.keys(s).filter(function (k) { return s[k]; }).map(function (k) { return k.toUpperCase(); }).join(", ")], ["MICR", r.micr]];
+      } else f = [["Why", r.reason || r.error]];
+    } else if (tool === "lookup_pincode") {
+      ok = r.found; title = ok ? "PIN code " + r.pincode : "No such PIN code";
+      if (ok) f = [["District", r.district], ["State", r.state], ["Post offices", list((r.post_offices || []).map(function (p) { return p.name.trim(); }), 4)]];
+      else f = [["Why", r.reason || r.error]];
+    } else {
+      ok = r.found; title = ok ? r.matches + (r.matches === 1 ? " match" : " matches") : "No post office by that name";
+      f = (r.results || []).slice(0, 5).map(function (x) { return [x.pincode, x.post_office + ", " + x.district + ", " + x.state]; });
+      if (!ok) f = [["Why", r.reason || r.error]];
+    }
+    (r.problems || []).forEach(function (p) { f.push(["Problem", p]); });
+    return { ok: ok, title: title, facts: f.filter(function (x) { return x[1] != null && x[1] !== ""; }) };
+  }
+
+  var out = $("#out"), form = $("#f"), q = $("#q"), busy = false;
+  var OK = $(".check .pass .dot").innerHTML, NO = $(".check .flag .dot").innerHTML;
+  function show(tool, r, err) {
+    if (err) { out.innerHTML = '<div class="out-head"><span class="dot" style="background:var(--flag-bg);color:var(--flag)">' + NO + '</span><b>Couldn’t reach the server</b></div><div class="wait">' + esc(err) + '</div>'; return; }
+    var s = summarise(tool, r), cls = s.ok ? "pass" : "flag";
+    out.innerHTML =
+      '<div class="out-head ' + cls + '"><span class="dot">' + (s.ok ? OK : NO) + '</span><b>' + esc(s.title) + '</b><code>' + tool + '</code></div>' +
+      (s.facts.length ? '<dl class="facts">' + s.facts.map(function (x) { return "<dt>" + esc(x[0]) + "</dt><dd>" + esc(x[1]) + "</dd>"; }).join("") + "</dl>" : "") +
+      '<details><summary>Raw response</summary><pre>' + esc(JSON.stringify(r, null, 2)) + "</pre></details>";
+    if (window.gsap && !calm) gsap.from(out.children, { y: 8, opacity: 0, duration: .35, stagger: .05, ease: "power2.out" });
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (busy || !q.value.trim()) return;
+    var r = route(q.value), tool = r[0];
+    busy = true; out.hidden = false;
+    out.innerHTML = '<div class="wait">Calling <code>' + tool + "</code>…</div>";
+    fetch("/mcp", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json, text/event-stream" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/call", params: { name: tool, arguments: r[1] } })
+    }).then(function (res) { return res.json(); }).then(function (j) {
+      if (j.error) throw new Error(j.error.message);
+      var c = j.result && j.result.content && j.result.content[0];
+      var data; try { data = JSON.parse(c.text); } catch (x) { data = { error: c ? c.text : "Empty answer" }; }
+      if (j.result.isError) throw new Error(c ? c.text : "The tool returned an error");
+      show(tool, data);
+    }).catch(function (x) { show(tool, null, x.message || "Network error. Try again in a moment."); })
+      .then(function () { busy = false; });
+  });
+  $$(".eg button").forEach(function (b) { b.addEventListener("click", function () { q.value = b.textContent; form.requestSubmit(); }); });
+
+  // motion: GSAP for the opening, Lenis for smooth scrolling. Both skipped when the device asks for less motion.
+  addEventListener("load", function () {
+    if (calm) return;
+    if (window.Lenis) new Lenis({ autoRaf: true, anchors: { offset: -64 } });
+    if (!window.gsap) return;
+    window.__played = true;
+    var root = document.documentElement;
+    var rows = $$(".check .row");
+    var tl = gsap.timeline({ defaults: { ease: "power3.out" }, onStart: function () { root.classList.remove("anim"); } });
+    tl.from(".brand .earth", { y: -9, opacity: 0, duration: .55, ease: "bounce.out" })
+      .from(".hero h1, .hero .lead, .hero .url, .hero .under", { y: 14, opacity: 0, duration: .6, stagger: .07 }, "<.05")
+      .from(".check", { y: 24, opacity: 0, duration: .7 }, "<.15")
+      .from(rows, { opacity: 0, x: -6, duration: .3, stagger: .22 }, "-=.25")
+      .from($$(".dot", $(".check")), { scale: 0, duration: .45, stagger: .22, ease: "back.out(3)" }, "<.1")
+      .from(".check .verdict", { opacity: 0, duration: .3 }, ">-.05")
+      .from(".stamp", { scale: 1.8, rotation: -8, opacity: 0, duration: .35, ease: "power4.in" }, "<");
+  });
+})();
+</script>
+</body>
+</html>

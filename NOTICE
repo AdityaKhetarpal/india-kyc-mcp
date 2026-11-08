@@ -1,2 +1,5 @@
 src/india_kyc_mcp/data/banknames.json comes from https://github.com/razorpay/ifsc
 Copyright (c) Razorpay, MIT licence.
+
+src/india_kyc_mcp/site/fonts/ holds IBM Plex Sans and IBM Plex Mono (Copyright IBM Corp.), SIL Open Font
+License 1.1, full text in src/india_kyc_mcp/site/fonts/OFL.txt.
