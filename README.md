@@ -1,6 +1,6 @@
-<img src="src/india_kyc_mcp/site/icon.svg" width="64" height="64" alt="india-kyc-mcp logo: a map pin with a 3-pin socket in it">
+<img src="src/india_kyc_mcp/site/icon.svg" width="64" height="64" alt="India KYC MCP logo: a map pin with a 3-pin socket in it">
 
-# india-kyc-mcp
+# India KYC MCP
 
 **An MCP server that lets AI assistants check Indian bank, address and tax details during onboarding.**
 
