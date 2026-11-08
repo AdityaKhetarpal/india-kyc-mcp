@@ -13,6 +13,9 @@ instead of guessing:
 - **Vendor check** → all of the above in one call, with the cross-checks a finance team does by hand,
   and a verdict: `pass`, `review` or `fail`
 
+**Hosted, nothing to install:** connect any MCP client to **`https://indiakyc.vercel.app/mcp`**
+(landing page: [indiakyc.vercel.app](https://indiakyc.vercel.app)).
+
 No API keys. Live data comes from two free public services:
 [Razorpay's IFSC API](https://github.com/razorpay/ifsc) (RBI data) and the India Post directory at
 [api.postalpincode.in](https://api.postalpincode.in).
@@ -77,7 +80,19 @@ hour, and when a service is down the tool says so in plain words instead of fail
 **What it does not do:** a format check proves a GSTIN or PAN is *well-formed*, not that it is registered to that
 business. Confirming registration needs the government GST portal, which has no free public API.
 
-## Install
+## Connect
+
+**Use the hosted server (easiest).** It runs on Vercel and is checked weekly along with the APIs.
+
+```bash
+# Claude Code
+claude mcp add --transport http india-kyc https://indiakyc.vercel.app/mcp
+```
+
+Claude (web and desktop): Settings → Connectors → Add custom connector → `https://indiakyc.vercel.app/mcp`.
+Cursor (`.cursor/mcp.json`): `{ "mcpServers": { "india-kyc": { "url": "https://indiakyc.vercel.app/mcp" } } }`
+
+**Or run it on your own machine:**
 
 ```bash
 pip install "git+https://github.com/AdityaKhetarpal/india-kyc-mcp"
@@ -118,9 +133,11 @@ src/india_kyc_mcp/
   server.py        the MCP server: tools, prompt, stdio/HTTP entry point
   lookups.py       live IFSC and PIN code lookups (httpx, 1-hour cache, clear errors)
   validators.py    offline GSTIN / PAN / IFSC / PIN checks
+  web.py           the hosted version: stateless HTTP endpoint at /mcp + landing page (runs on Vercel)
   data/            bank codes and names (from razorpay/ifsc, MIT)
-tests/             tools called through a real MCP client session, against recorded API responses
-scripts/live_check.py   the same tools against the real APIs (weekly on GitHub Actions)
+tests/             tools called through a real MCP client session, plus the hosted HTTP endpoint
+app.py             Vercel entry point
+scripts/live_check.py   the same tools against the real APIs, in-process and on the hosted server (weekly)
 ```
 
 ## Development
