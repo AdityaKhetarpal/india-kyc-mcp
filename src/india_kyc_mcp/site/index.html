@@ -194,21 +194,73 @@ h2{font-size:clamp(26px,3.2vw,34px);line-height:1.12;letter-spacing:-.025em;font
 .stage [data-step].on{display:grid;gap:14px}
 @media (max-width:900px){.demo-grid{grid-template-columns:minmax(0,1fr)}.stage-body{min-height:0}}
 
-/* the guided tour */
-.tour-btn{font:500 14px/1 var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+/* "watch the demo": a full-screen walkthrough that plays by itself */
+.tour-btn{font:500 14px/1 var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 12px 8px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
 .tour-btn:hover{border-color:var(--marigold)}
-.tour-btn i{width:7px;height:7px;border-radius:50%;background:var(--marigold)}
+.tour-btn i{width:18px;height:18px;border-radius:50%;background:var(--marigold);position:relative;flex:none}
+.tour-btn i:after{content:"";position:absolute;left:7px;top:5px;border:4px solid transparent;border-left:6px solid #10201e;border-right:0}
 .tour-hint{position:fixed;right:20px;bottom:20px;z-index:20;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 10px 10px 14px;box-shadow:0 16px 40px -18px rgba(0,0,0,.4);font-size:14.5px;max-width:calc(100vw - 40px)}
 .tour-hint[hidden]{display:none}
 .tour-hint .x{background:none;border:0;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:4px 6px}
-.tour-ring{position:fixed;z-index:40;border-radius:14px;box-shadow:0 0 0 2px var(--marigold),0 0 0 9999px rgba(6,14,13,.62);pointer-events:none;transition:all .3s ease}
-.tour-card{position:fixed;z-index:41;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:16px 16px 12px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);transition:top .3s ease,left .3s ease}
-.tour-card h3{margin:0 0 6px;font-size:17px;letter-spacing:-.01em}
-.tour-card p{margin:0 0 14px;color:var(--muted);font-size:15px;line-height:1.5}
-.tour-card .row2{display:flex;align-items:center;gap:8px}
-.tour-card .row2 span{font:500 12.5px var(--mono);color:var(--muted);margin-right:auto}
-.tour-card .skip{background:none;border:0;color:var(--muted);font:14px var(--sans);cursor:pointer;padding:8px}
-.tour-shade{position:fixed;inset:0;z-index:39}
+.film{position:fixed;inset:0;z-index:50;background:#071211;color:#e6eeec;display:flex;flex-direction:column;overflow:auto;
+  --f-line:#1f3532;--f-dim:#8fa7a2;--f-card:#0e1c1b;--f-sunk:#0a1716}
+.film[hidden]{display:none}
+.film-top{display:flex;align-items:center;gap:14px;padding:16px 20px}
+.film-bars{display:flex;gap:6px;flex:1}
+.film-bars i{flex:1;height:4px;border-radius:2px;background:var(--f-line);overflow:hidden;position:relative}
+.film-bars i b{position:absolute;inset:0;width:0;background:var(--marigold)}
+.film-bars i.done b{width:100%}
+.film-x{background:none;border:1px solid var(--f-line);color:#e6eeec;border-radius:999px;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer;flex:none}
+.film-x:hover{border-color:var(--marigold)}
+.film-main{flex:1;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:48px;align-items:center;max-width:1120px;width:100%;margin:0 auto;padding:12px 28px 24px}
+.film-cap .n{font:500 13px var(--mono);color:var(--marigold);letter-spacing:.06em}
+.film-cap h2{font-size:clamp(28px,4vw,44px);line-height:1.08;letter-spacing:-.025em;margin:10px 0 14px;color:#fff}
+.film-cap p{color:var(--f-dim);font-size:17px;line-height:1.55;margin:0;max-width:30em}
+.film-win{background:var(--f-card);border:1px solid var(--f-line);border-radius:18px;box-shadow:0 40px 80px -40px rgba(0,0,0,.8);min-height:360px;display:flex;flex-direction:column;overflow:hidden}
+.film-win .bar{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--f-line);font:500 12.5px var(--mono);color:var(--f-dim)}
+.film-win .bar .dots{display:flex;gap:5px}.film-win .bar .dots i{width:9px;height:9px;border-radius:50%;background:var(--f-line)}
+.film-body{padding:20px;display:flex;flex-direction:column;gap:12px;flex:1}
+.film .who{font:500 12px var(--mono);color:var(--f-dim);letter-spacing:.03em}
+.film .who.r{align-self:flex-end}
+.film .msg{max-width:88%;padding:12px 15px;border-radius:16px;font-size:15.5px;line-height:1.55}
+.film .msg.you{align-self:flex-end;background:#1d3a37;border-bottom-right-radius:5px}
+.film .msg.bot{background:var(--f-sunk);border:1px solid var(--f-line);border-bottom-left-radius:5px}
+.film .msg ul{margin:8px 0;padding-left:18px}.film .msg li{margin:3px 0}
+.film .caret{display:inline-block;width:2px;height:1.05em;background:var(--marigold);vertical-align:-2px;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.film pre{margin:0;background:var(--f-sunk);border:1px solid var(--f-line);border-radius:12px;padding:14px;font:13px/1.6 var(--mono);color:#dbe8e5;white-space:pre-wrap;word-break:break-word}
+.film pre .k{color:var(--marigold)}
+.film .tools{display:flex;flex-wrap:wrap;gap:6px}
+.film .tools span{font:500 12.5px var(--mono);padding:6px 9px;border:1px solid var(--f-line);border-radius:8px;color:var(--f-dim);transition:all .3s}
+.film .tools span.pick{border-color:var(--marigold);color:#10201e;background:var(--marigold)}
+.film .chk{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.film .chk li{display:grid;grid-template-columns:22px 70px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--f-line);border-radius:10px;font-size:14.5px;line-height:1.45}
+.film .chk .what{font-weight:600}.film .chk .why{color:var(--f-dim)}
+.film .chk .tag{font:500 11px var(--mono);color:var(--f-dim);display:block}
+.film .chk li.pass .ic{color:#4cc38a}.film .chk li.flag .ic{color:#ff7f61}
+.film .chk li.flag{border-color:#5a2a20;background:#1e1210}
+.film .ic svg{width:18px;height:18px;display:block}
+.film .spin{width:16px;height:16px;border:2px solid var(--f-line);border-top-color:var(--marigold);border-radius:50%;animation:sp .8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.film .verdict{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:10px;background:#2a1612;border:1px solid #5a2a20;font-weight:600}
+.film .verdict.ok{background:#11302a;border-color:#1f5a46}
+.film .verdict small{font:500 12px var(--mono);color:var(--f-dim);font-weight:500}
+.film .hello{display:grid;place-items:center;text-align:center;gap:16px;flex:1;padding:24px}
+.film .hello svg{width:72px;height:72px}
+.film .hello .pins{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.film .hello .pins span{font:500 13px var(--mono);border:1px solid var(--f-line);border-radius:999px;padding:6px 12px;color:var(--f-dim)}
+.film .cmd{display:flex;gap:8px;align-items:stretch}
+.film .cmd code{flex:1;background:var(--f-sunk);border:1px solid var(--f-line);border-radius:10px;padding:11px 13px;font-size:13.5px;word-break:break-all;color:#e6eeec}
+.film .fbtn{font:600 14px var(--sans);border:1px solid var(--f-line);background:transparent;color:#e6eeec;border-radius:10px;padding:10px 14px;cursor:pointer;white-space:nowrap}
+.film .fbtn:hover{border-color:var(--marigold)}
+.film .fbtn.main{background:var(--marigold);border-color:var(--marigold);color:#10201e}
+.film-foot{display:flex;align-items:center;gap:10px;justify-content:center;padding:14px 20px 22px}
+.film-foot .fbtn{min-width:44px}
+.film-foot .cnt{font:500 13px var(--mono);color:var(--f-dim);min-width:64px;text-align:center}
+.film .in{animation:fin .4s ease both}
+@keyframes fin{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.film .in{animation:none}.film .caret{animation:none}}
+@media (max-width:820px){.film-main{grid-template-columns:1fr;gap:20px;align-items:start;padding:4px 18px 12px}.film-cap h2{font-size:28px;margin:6px 0 8px}.film-cap p{font-size:15.5px}.film-win{min-height:320px}.film .chk li{grid-template-columns:20px 58px 1fr}}
 
 footer{border-top:1px solid var(--line);padding:28px 0 40px;font-size:14px;color:var(--muted)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
@@ -247,7 +299,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
       <a href="#try">Try it</a>
       <a class="gh" href="{{REPO}}">GitHub</a>
     </nav>
-    <button class="tour-btn" type="button" data-tour-start><i></i>Take the tour</button>
+    <button class="tour-btn" type="button" data-tour-start><i></i>Watch the demo</button>
   </div>
 </header>
 
@@ -401,10 +453,27 @@ claude mcp add india-kyc -- india-kyc-mcp</code></pre><button class="copy" type=
 </section>
 </main>
 
-<div class="tour-hint" id="tour-hint" hidden role="dialog" aria-label="Guided tour">
-  <span>New here? A 30-second tour shows what this is.</span>
-  <button class="btn" type="button" data-tour-start>Start</button>
+<div class="tour-hint" id="tour-hint" hidden role="dialog" aria-label="Demo">
+  <span>New here? Watch a 40-second demo of what this does.</span>
+  <button class="btn" type="button" data-tour-start>Play</button>
   <button class="x" type="button" aria-label="No thanks" id="tour-no">×</button>
+</div>
+
+<div class="film" id="film" hidden role="dialog" aria-modal="true" aria-label="Demo: India KYC MCP in 40 seconds">
+  <div class="film-top">
+    <div class="film-bars" id="film-bars"></div>
+    <button class="film-x" type="button" id="film-x" aria-label="Close the demo">×</button>
+  </div>
+  <div class="film-main">
+    <div class="film-cap" aria-live="polite"><div class="n" id="film-n"></div><h2 id="film-h"></h2><p id="film-p"></p></div>
+    <div class="film-win"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span id="film-bar">Your AI assistant</span></div><div class="film-body" id="film-body"></div></div>
+  </div>
+  <div class="film-foot">
+    <button class="fbtn" type="button" id="film-back" aria-label="Previous scene">←</button>
+    <button class="fbtn" type="button" id="film-play" aria-label="Pause">Pause</button>
+    <button class="fbtn" type="button" id="film-next" aria-label="Next scene">→</button>
+    <span class="cnt" id="film-cnt"></span>
+  </div>
 </div>
 
 <footer>
@@ -582,81 +651,201 @@ claude mcp add india-kyc -- india-kyc-mcp</code></pre><button class="copy" type=
   stepBtns.forEach(function (b) { b.addEventListener("click", function () { go(+b.dataset.go); }); });
   go(0);
 
-  // ---------------------------------------------------------------- the guided tour
-  var TOUR = [
-    { el: null, title: "What is this?", text: "India KYC MCP is a server that gives AI assistants like Claude and Cursor tools to check Indian bank, tax and address details, live, instead of guessing." },
-    { el: ".hero .url", title: "The one thing you need", text: "This URL. Add it to your assistant once and it can use all seven tools. No account, no API key." },
-    { el: ".check", title: "What a check looks like", text: "A real result from the vendor check: it caught a PAN typo, a PIN code from another city and a state mismatch." },
-    { el: "#connect .tabs", title: "Connect in a minute", text: "Pick your app. Each tab shows the exact command or setting to paste." },
-    { el: "#tools .groups", title: "The seven tools", text: "Live tools ask Razorpay's IFSC API and India Post. Offline tools check GSTIN and PAN formats and the GST check digit instantly." },
-    { el: "#demo .demo-grid", title: "See a full exchange", text: "Click through the four steps to watch an assistant call the server and explain the answer. Step 3 is a live call." },
-    { el: "#try form", title: "Try it yourself", text: "Type any GSTIN, PAN, IFSC, PIN code or place. The box picks the right tool and calls the server, just like an assistant would." }
-  ];
-  var ring, card, shade, at = 0;
-  function tourPlace() {
-    var s = TOUR[at], target = s.el && $(s.el), vw = innerWidth, vh = innerHeight, cw = Math.min(360, vw - 32);
-    if (!target) {
-      ring.style.cssText = "top:" + (vh / 2) + "px;left:" + (vw / 2) + "px;width:0;height:0";
-      card.style.top = Math.max(16, vh / 2 - card.offsetHeight / 2) + "px"; card.style.left = (vw - cw) / 2 + "px"; return;
-    }
-    var r = target.getBoundingClientRect(), pad = 8;
-    ring.style.cssText = "top:" + (r.top - pad) + "px;left:" + (r.left - pad) + "px;width:" + (r.width + pad * 2) + "px;height:" + (r.height + pad * 2) + "px";
-    var below = r.bottom + 16, above = r.top - 16 - card.offsetHeight;
-    var top = below + card.offsetHeight < vh ? below : above > 8 ? above : Math.max(8, vh - card.offsetHeight - 8);
-    var left = Math.min(Math.max(16, r.left), vw - cw - 16);
-    card.style.top = top + "px"; card.style.left = left + "px";
-  }
-  function tourShow(i) {
-    at = i;
-    var s = TOUR[i], target = s.el && $(s.el);
-    card.innerHTML = "<h3>" + s.title + "</h3><p>" + s.text + '</p><div class="row2"><span>' + (i + 1) + " / " + TOUR.length +
-      '</span><button class="skip" type="button" data-t="end">' + (i === TOUR.length - 1 ? "Close" : "Skip") + '</button>' +
-      (i > 0 ? '<button class="btn ghost" type="button" data-t="back">Back</button>' : "") +
-      '<button class="btn" type="button" data-t="next">' + (i === TOUR.length - 1 ? "Done" : "Next") + "</button></div>";
-    if (target) {
-      var r = target.getBoundingClientRect();
-      if (r.top < 70 || r.bottom > innerHeight - 40) {
-        var y = scrollY + r.top - 110;
-        // scroll through Lenis when it's running, so the smooth scroller and the tour never fight
-        if (window.__lenis) window.__lenis.scrollTo(y, { duration: .6 }); else scrollTo({ top: y, behavior: calm ? "auto" : "smooth" });
-      }
-    }
-    setTimeout(tourPlace, target ? 380 : 0); tourPlace();
-    card.querySelector('[data-t="next"]').focus({ preventScroll: true });
-  }
-  function tourEnd() {
-    [ring, card, shade].forEach(function (x) { if (x) x.remove(); });
-    ring = card = shade = null;
-    removeEventListener("resize", tourPlace); removeEventListener("scroll", tourPlace);
-    document.removeEventListener("keydown", tourKeys);
-    try { localStorage.setItem("kyc-tour-seen", "1"); } catch (e) {}
-  }
-  function tourKeys(e) {
-    if (e.key === "Escape") tourEnd();
-    else if (e.key === "ArrowRight") at < TOUR.length - 1 ? tourShow(at + 1) : tourEnd();
-    else if (e.key === "ArrowLeft" && at > 0) tourShow(at - 1);
-  }
-  function tourStart() {
-    $("#tour-hint").hidden = true;
-    if (card) return;
-    shade = document.createElement("div"); shade.className = "tour-shade"; shade.addEventListener("click", tourEnd);
-    ring = document.createElement("div"); ring.className = "tour-ring";
-    card = document.createElement("div"); card.className = "tour-card"; card.setAttribute("role", "dialog"); card.setAttribute("aria-label", "Guided tour");
-    card.addEventListener("click", function (e) {
-      var t = e.target.closest("[data-t]"); if (!t) return;
-      if (t.dataset.t === "next") at < TOUR.length - 1 ? tourShow(at + 1) : tourEnd();
-      else if (t.dataset.t === "back") tourShow(at - 1);
-      else tourEnd();
+  // ---------------------------------------------------------------- "watch the demo": a short film that plays by itself
+  // Six scenes. Each one types, reveals or calls something, waits a moment, then the next one starts.
+  // Scene 4 calls this server for real; if that fails it shows the saved result from the weekly live check.
+  var film = $("#film"), fBody = $("#film-body"), fBars = $("#film-bars"), fPlay = $("#film-play");
+  var F = { at: 0, run: 0, paused: false, open: false, opener: null, result: null };
+  var QUESTION = "Can we onboard this vendor? Shree Ganesh Traders, GSTIN 27AAPFU0939F1ZV, PAN AAPFU0939G, bank IFSC HDFC0000001, address MG Road, Mumbai, Karnataka 560001.";
+  var SAVED = { verdict: "fail", saved: true, red_flags: [
+    "PAN AAPFU0939G is not the PAN inside the GSTIN (AAPFU0939F)",
+    "city 'Mumbai' does not match PIN code 560001 (Bangalore)",
+    "GST registration state (Maharashtra) differs from the address state (Karnataka)"] };
+  var MARK = $(".brand svg") ? $(".brand svg").outerHTML : "";
+  var TOOLS = ["lookup_ifsc", "lookup_pincode", "find_pincode", "check_address", "validate_gstin", "validate_pan", "verify_vendor"];
+
+  function Stop() {}
+  // wait that honours pause, and gives up as soon as the scene changes
+  function wait(ms, run) {
+    return new Promise(function (res, rej) {
+      var left = ms, last = performance.now();
+      (function tick() {
+        if (run !== F.run) return rej(new Stop());
+        var now = performance.now();
+        if (!F.paused) left -= now - last;
+        last = now;
+        if (left <= 0) return res();
+        setTimeout(tick, 40);
+      })();
     });
-    document.body.append(shade, ring, card);
-    addEventListener("resize", tourPlace); addEventListener("scroll", tourPlace, { passive: true });
-    document.addEventListener("keydown", tourKeys);
-    tourShow(0);
   }
-  $$("[data-tour-start]").forEach(function (b) { b.addEventListener("click", tourStart); });
+  function typeInto(el, text, run, speed) {
+    if (calm) { el.textContent = text; return Promise.resolve(); }
+    var i = 0, caret = '<span class="caret"></span>';
+    function next() {
+      if (i >= text.length) { el.textContent = text; return Promise.resolve(); }
+      i += text.charCodeAt(i) === 32 ? 1 : 2;
+      el.innerHTML = esc(text.slice(0, i)) + caret;
+      return wait(speed, run).then(next);
+    }
+    return next();
+  }
+  function add(html) { var d = document.createElement("div"); d.innerHTML = html; var el = d.firstElementChild; el.classList.add("in"); fBody.appendChild(el); return el; }
+  function verify() {
+    if (!F.result) F.result = fetch("/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify(callBody) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { return JSON.parse(j.result.content[0].text); })
+      .catch(function () { F.result = null; return SAVED; });
+    return F.result;
+  }
+  function flagRows(flags) {
+    var label = function (f) { return /^PAN/.test(f) ? "PAN" : /^city/.test(f) ? "City" : /^GST|state/.test(f) ? "State" : /^IFSC|bank/.test(f) ? "Bank" : "Check"; };
+    return flags.map(function (f) { return '<li class="flag"><span class="ic">' + NO + '</span><span class="what">' + label(f) + '</span><span class="why">' + esc(f.charAt(0).toUpperCase() + f.slice(1)) + "</span></li>"; }).join("");
+  }
+
+  var SCENES = [
+    { n: "What it is", h: "India KYC MCP", p: "A server that gives AI assistants like Claude and Cursor real tools to check Indian bank, tax and address details, instead of guessing them.",
+      bar: "india-kyc-mcp", play: function (run) {
+        add('<div class="hello">' + MARK + '<div style="font-size:22px;font-weight:600;color:#fff">Bank, tax and address checks</div><div class="pins"><span>IFSC</span><span>PIN code</span><span>GSTIN</span><span>PAN</span></div><div class="who">Seven read-only tools · one URL · no API key</div></div>');
+        return wait(4200, run);
+      } },
+    { n: "You ask", h: "Paste the details, in plain words", p: "A vendor emails their details. You ask your assistant whether it's safe to onboard them. No forms, no portals.",
+      play: function (run) {
+        add('<div class="who r">You</div>');
+        var m = add('<div class="msg you"></div>');
+        return typeInto(m, QUESTION, run, 28).then(function () { return wait(1600, run); });
+      } },
+    { n: "It picks a tool", h: "The assistant calls verify_vendor", p: "It reads the server's tool list, picks the one that fits, and fills in the details it found in your message.",
+      bar: "Assistant → India KYC MCP", play: function (run) {
+        var t = add('<div class="tools">' + TOOLS.map(function (x) { return "<span>" + x + "</span>"; }).join("") + "</div>");
+        return wait(900, run).then(function () {
+          t.lastElementChild.classList.add("pick");
+          return wait(700, run);
+        }).then(function () {
+          var pre = add("<pre></pre>");
+          var text = JSON.stringify({ method: "tools/call", params: { name: "verify_vendor", arguments: VENDOR } }, null, 2);
+          return typeInto(pre, text, run, 6).then(function () {
+            pre.innerHTML = esc(text).replace(/&quot;(method|name|arguments)&quot;/g, '<span class="k">&quot;$1&quot;</span>');
+            return wait(1500, run);
+          });
+        });
+      } },
+    { n: "The server checks", h: "Four checks, compared with each other", p: "Bank branch and PIN code are looked up live with Razorpay and India Post. GSTIN and PAN are checked on the server, check digit included.",
+      bar: "India KYC MCP → Assistant", play: function (run) {
+        var rows = [["GSTIN", "offline", "Format, state code and check digit"], ["PAN", "offline", "Matches the PAN inside the GSTIN?"], ["Bank", "live", "Razorpay IFSC API"], ["Address", "live", "India Post PIN code directory"]];
+        var ul = add('<ul class="chk">' + rows.map(function (r) { return '<li><span class="ic"><span class="spin"></span></span><span class="what">' + r[0] + '<span class="tag">' + r[1] + '</span></span><span class="why">' + r[2] + "</span></li>"; }).join("") + "</ul>");
+        var t0 = performance.now();
+        return Promise.all([verify(), wait(1800, run)]).then(function (got) {
+          if (run !== F.run) throw new Stop();
+          var d = got[0], flags = d.red_flags || [], ms = Math.round(performance.now() - t0);
+          var bank = d.details && d.details.bank;
+          var ok = '<li class="pass"><span class="ic">' + OK + '</span><span class="what">GSTIN</span><span class="why">Valid, registered in Maharashtra</span></li>' +
+            (bank && bank.found ? '<li class="pass"><span class="ic">' + OK + '</span><span class="what">Bank</span><span class="why">Real branch: ' + esc(bank.bank + ", " + bank.branch) + "</span></li>" : "");
+          ul.innerHTML = ok + flagRows(flags);
+          add('<div class="verdict' + (d.verdict === "pass" ? " ok" : "") + '"><span>' + (d.verdict === "pass" ? "Pass" : flags.length + " red flag" + (flags.length === 1 ? "" : "s")) + '</span><small>' + (d.saved ? "saved result" : ms + " ms · live from this server") + "</small></div>");
+          F.data = d;
+          return wait(3600, run);
+        });
+      } },
+    { n: "You get an answer", h: "A clear answer, nothing guessed", p: "The assistant explains the verdict using only what the tool returned, and says what to do next.",
+      play: function (run) {
+        var d = F.data || SAVED, flags = d.red_flags || [];
+        add('<div class="who">Assistant</div>');
+        var m = add('<div class="msg bot"></div>');
+        var head = d.verdict === "pass" ? "Everything checks out, so it's fine to onboard." : "Don't onboard yet. I found " + flags.length + " problem" + (flags.length === 1 ? "" : "s") + ":";
+        return typeInto(m, head, run, 22).then(function () {
+          if (d.verdict === "pass") return;
+          m.innerHTML = "<b>" + esc(head) + "</b><ul>" + flags.map(function (f) { return '<li class="in">' + esc(f.charAt(0).toUpperCase() + f.slice(1)) + "</li>"; }).join("") + "</ul>";
+          return wait(900, run).then(function () { m.insertAdjacentHTML("beforeend", '<span class="in">Ask the vendor to confirm their PAN and full address, then run the check again.</span>'); });
+        }).then(function () { return wait(3800, run); });
+      } },
+    { n: "Your turn", h: "Connect it in a minute", p: "Add the URL to Claude, Cursor or any MCP client. Free, nothing to sign up for, and it never stores what you check.",
+      bar: "Terminal", play: function () {
+        add('<div class="who">Claude Code</div>');
+        add('<div class="cmd"><code id="film-cmd">claude mcp add --transport http india-kyc ' + esc($("#u").textContent.trim()) + '</code><button class="fbtn" type="button" data-fcopy="#film-cmd">Copy</button></div>');
+        add('<div class="who">Claude app, Cursor or anything else: use the URL</div>');
+        add('<div class="cmd"><code id="film-url">' + esc($("#u").textContent.trim()) + '</code><button class="fbtn" type="button" data-fcopy="#film-url">Copy</button></div>');
+        add('<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px"><button class="fbtn main" type="button" data-fgo="#try">Try a number on the page</button><button class="fbtn" type="button" data-fgo="#connect">All setup options</button><button class="fbtn" type="button" data-fgo="replay">Watch again</button></div>');
+        return null; // the last scene stays until you close it
+      } }
+  ];
+  fBars.innerHTML = SCENES.map(function () { return "<i><b></b></i>"; }).join("");
+  var bars = $$("i", fBars);
+
+  function scene(i) {
+    F.at = Math.max(0, Math.min(SCENES.length - 1, i));
+    var run = ++F.run, s = SCENES[F.at];
+    $("#film-n").textContent = String(F.at + 1).padStart(2, "0") + " · " + s.n;
+    $("#film-h").textContent = s.h;
+    $("#film-p").textContent = s.p;
+    $("#film-bar").textContent = s.bar || "Your AI assistant";
+    $("#film-cnt").textContent = (F.at + 1) + " / " + SCENES.length;
+    $("#film-back").disabled = F.at === 0;
+    $("#film-next").disabled = fPlay.disabled = F.at === SCENES.length - 1;
+    bars.forEach(function (b, k) { b.classList.toggle("done", k < F.at); b.firstChild.style.width = k < F.at ? "" : "0"; });
+    fBody.innerHTML = "";
+    if (window.gsap && !calm) gsap.from(".film-cap > *", { y: 10, opacity: 0, duration: .4, stagger: .06, ease: "power2.out" });
+    var started = performance.now(), cur = bars[F.at].firstChild;
+    var p = s.play(run);
+    if (!p) { cur.style.width = "100%"; return; }
+    // the bar fills slowly while the scene plays, and jumps to full when it ends
+    (function grow() { if (run !== F.run) return; var t = (performance.now() - started) / 9000; cur.style.width = Math.min(90, t * 100) + "%"; setTimeout(grow, 120); })();
+    p.then(function () { if (run === F.run) { cur.style.width = "100%"; scene(F.at + 1); } }, function (e) { if (!(e instanceof Stop)) throw e; });
+  }
+  function setPaused(v) { F.paused = v; fPlay.textContent = v ? "Play" : "Pause"; fPlay.setAttribute("aria-label", v ? "Play" : "Pause"); }
+  function filmOpen() {
+    $("#tour-hint").hidden = true;
+    if (F.open) return;
+    F.open = true; F.opener = document.activeElement;
+    film.hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    if (window.__lenis) window.__lenis.stop();
+    document.addEventListener("keydown", filmKeys);
+    setPaused(false);
+    scene(0);
+    $("#film-x").focus();
+  }
+  function filmClose() {
+    if (!F.open) return;
+    F.open = false; F.run++;
+    film.hidden = true;
+    document.documentElement.style.overflow = "";
+    if (window.__lenis) window.__lenis.start();
+    document.removeEventListener("keydown", filmKeys);
+    try { localStorage.setItem("kyc-tour-seen", "1"); } catch (e) {}
+    if (F.opener && F.opener.focus) F.opener.focus({ preventScroll: true });
+  }
+  function filmKeys(e) {
+    if (e.key === "Escape") filmClose();
+    else if (e.key === "ArrowRight") scene(F.at + 1);
+    else if (e.key === "ArrowLeft") scene(F.at - 1);
+    else if (e.key === " " && e.target.tagName !== "BUTTON") { e.preventDefault(); setPaused(!F.paused); }
+    else if (e.key === "Tab") { // keep focus inside the demo
+      var f = $$("button:not([disabled])", film), first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+  $("#film-x").addEventListener("click", filmClose);
+  $("#film-next").addEventListener("click", function () { scene(F.at + 1); });
+  $("#film-back").addEventListener("click", function () { scene(F.at - 1); });
+  fPlay.addEventListener("click", function () { setPaused(!F.paused); });
+  fBody.addEventListener("click", function (e) {
+    var c = e.target.closest("[data-fcopy]"), g = e.target.closest("[data-fgo]");
+    if (c) copy($(c.dataset.fcopy).textContent.trim(), c);
+    if (g) {
+      if (g.dataset.fgo === "replay") { setPaused(false); scene(0); return; }
+      var target = $(g.dataset.fgo);
+      filmClose();
+      if (window.__lenis) window.__lenis.scrollTo(target, { offset: -64 }); else target.scrollIntoView({ behavior: calm ? "auto" : "smooth" });
+      if (g.dataset.fgo === "#try") setTimeout(function () { $("#q").focus({ preventScroll: true }); }, 700);
+    }
+  });
+  $$("[data-tour-start]").forEach(function (b) { b.addEventListener("click", filmOpen); });
   $("#tour-no").addEventListener("click", function () { $("#tour-hint").hidden = true; try { localStorage.setItem("kyc-tour-seen", "1"); } catch (e) {} });
   var seen = false; try { seen = localStorage.getItem("kyc-tour-seen") === "1"; } catch (e) {}
-  if (!seen) setTimeout(function () { if (!card) $("#tour-hint").hidden = false; }, 1800);
+  if (!seen) setTimeout(function () { if (!F.open) $("#tour-hint").hidden = false; }, 1800);
+  if (/[#&]demo-film\b/.test(location.hash)) filmOpen();
 
   // motion: GSAP for the opening, Lenis for smooth scrolling. Both skipped when the device asks for less motion.
   addEventListener("load", function () {

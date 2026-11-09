@@ -16,7 +16,7 @@ instead of guessing:
   and a verdict: `pass`, `review` or `fail`
 
 **Hosted, nothing to install:** connect any MCP client to **`https://indiakyc.vercel.app/mcp`**
-(landing page with a guided tour and a live step-by-step demo: [indiakyc.vercel.app](https://indiakyc.vercel.app)).
+(landing page with a 40-second auto-playing demo and a live step-by-step walkthrough: [indiakyc.vercel.app](https://indiakyc.vercel.app)).
 
 No API keys. Live data comes from two free public services:
 [Razorpay's IFSC API](https://github.com/razorpay/ifsc) (RBI data) and the India Post directory at
