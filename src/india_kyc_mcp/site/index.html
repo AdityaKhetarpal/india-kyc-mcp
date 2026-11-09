@@ -615,7 +615,11 @@ claude mcp add india-kyc -- india-kyc-mcp</code></pre><button class="copy" type=
       '<button class="btn" type="button" data-t="next">' + (i === TOUR.length - 1 ? "Done" : "Next") + "</button></div>";
     if (target) {
       var r = target.getBoundingClientRect();
-      if (r.top < 70 || r.bottom > innerHeight - 40) scrollTo({ top: scrollY + r.top - 110, behavior: calm ? "auto" : "smooth" });
+      if (r.top < 70 || r.bottom > innerHeight - 40) {
+        var y = scrollY + r.top - 110;
+        // scroll through Lenis when it's running, so the smooth scroller and the tour never fight
+        if (window.__lenis) window.__lenis.scrollTo(y, { duration: .6 }); else scrollTo({ top: y, behavior: calm ? "auto" : "smooth" });
+      }
     }
     setTimeout(tourPlace, target ? 380 : 0); tourPlace();
     card.querySelector('[data-t="next"]').focus({ preventScroll: true });
@@ -657,7 +661,7 @@ claude mcp add india-kyc -- india-kyc-mcp</code></pre><button class="copy" type=
   // motion: GSAP for the opening, Lenis for smooth scrolling. Both skipped when the device asks for less motion.
   addEventListener("load", function () {
     if (calm) return;
-    if (window.Lenis) new Lenis({ autoRaf: true, anchors: { offset: -64 } });
+    if (window.Lenis) window.__lenis = new Lenis({ autoRaf: true, anchors: { offset: -64 } });
     if (!window.gsap) return;
     window.__played = true;
     var root = document.documentElement;
