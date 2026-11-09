@@ -52,3 +52,32 @@ def test_logo_icons_and_fonts(client):
     # only the bundled font files are served, nothing else from disk
     assert client.get("/fonts/..%2F..%2Fweb.py").status_code == 404
     assert client.get("/fonts/OFL.txt").status_code == 404
+
+
+def test_search_files(client):
+    # robots.txt lets every crawler read the page, skips the MCP endpoint and points to the sitemap
+    robots = client.get("/robots.txt")
+    assert robots.status_code == 200 and "Allow: /" in robots.text
+    assert "Disallow: /mcp" in robots.text and "/sitemap.xml" in robots.text
+    sitemap = client.get("/sitemap.xml")
+    assert sitemap.status_code == 200 and sitemap.headers["content-type"].startswith("application/xml") and "<loc>" in sitemap.text
+    assert "verify_vendor" in client.get("/llms.txt").text
+
+
+def test_page_has_canonical_structured_data_and_faq(client):
+    import json
+    import re
+
+    page = client.get("/").text
+    assert 'rel="canonical"' in page and "Questions people ask" in page
+    data = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', page, re.S).group(1))
+    types = {item["@type"] for item in data["@graph"]}
+    assert {"SoftwareApplication", "WebSite", "Person", "FAQPage"} <= types
+
+
+def test_missing_page_is_a_real_404(client):
+    page = client.get("/no-such-page")
+    assert page.status_code == 404 and "noindex" in page.text and "India KYC MCP" in page.text
+    # the MCP endpoint's answers are unchanged: plain text, not the HTML page
+    assert client.get("/mcp/nothing-here").status_code == 404
+    assert "<html" not in client.get("/mcp/nothing-here").text

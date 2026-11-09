@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>India KYC MCP server</title>
+<title>India KYC MCP server: IFSC, PIN code, GSTIN and PAN checks for Claude and Cursor</title>
 <meta name="description" content="A remote MCP server that lets Claude, Cursor and other AI assistants check Indian IFSC codes, PIN codes, GSTINs and PANs.">
+<link rel="canonical" href="{{PUBLIC_URL}}/">
+<meta name="author" content="Aditya Khetarpal">
+<link rel="author" href="{{HUB_URL}}">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -13,12 +16,18 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="India KYC MCP server">
 <meta property="og:description" content="Let your AI assistant check Indian IFSC codes, PIN codes, GSTINs and PANs. Free, no API key.">
-<meta property="og:url" content="{{PUBLIC_URL}}">
+<meta property="og:url" content="{{PUBLIC_URL}}/">
+<meta property="og:site_name" content="India KYC MCP">
 <meta property="og:image" content="{{PUBLIC_URL}}/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="India KYC MCP: let your AI assistant check Indian IFSC codes, PIN codes, GSTINs and PANs">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="India KYC MCP server">
+<meta name="twitter:description" content="Let your AI assistant check Indian IFSC codes, PIN codes, GSTINs and PANs. Free, no API key.">
+<meta name="twitter:creator" content="@0xAditya_k">
 <meta name="twitter:image" content="{{PUBLIC_URL}}/og.png">
+<script type="application/ld+json">{{JSONLD}}</script>
 <link rel="preload" href="/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/ibm-plex-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>
@@ -278,6 +287,15 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
   .row{grid-template-columns:22px 1fr;gap:4px 12px}
   .row .why{grid-column:2}
 }
+
+/* byline, FAQ, more projects */
+.byline{color:var(--muted);font-size:14px;margin:10px 0 0}
+.byline a{color:inherit}
+.faq{display:grid;gap:22px}
+.faq-item h3{font-size:17px;margin:0 0 6px;color:var(--ink)}
+.faq-item p{margin:0;color:var(--muted)}
+footer .more-wrap{display:block;margin-top:18px}
+footer .more{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
 </style>
 </head>
 <body>
@@ -314,6 +332,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
       <button class="btn" type="button" data-copy="#u">Copy URL</button>
     </div>
     <p class="under">Bank, tax and address checks: the three pins in the logo.</p>
+    <p class="byline">By <a href="{{HUB_URL}}" rel="author">Aditya Khetarpal</a> · v{{VERSION}} · open source, MIT licence</p>
   </div>
 
   <figure class="check" aria-label="Example: verify_vendor on a vendor with three problems" style="margin:0">
@@ -451,6 +470,17 @@ claude mcp add india-kyc -- india-kyc-mcp</code></pre><button class="copy" type=
     </div>
   </div>
 </section>
+
+<section id="faq">
+  <div class="wrap sec-head">
+    <div>
+      <div class="kicker">FAQ</div>
+      <h2>Questions people ask</h2>
+      <p>About MCP servers, GSTIN and PAN validation, and where the data comes from.</p>
+    </div>
+    <div class="faq">{{FAQ}}</div>
+  </div>
+</section>
 </main>
 
 <div class="tour-hint" id="tour-hint" hidden role="dialog" aria-label="Demo">
@@ -479,7 +509,11 @@ claude mcp add india-kyc -- india-kyc-mcp</code></pre><button class="copy" type=
 <footer>
   <div class="wrap">
     <span>Live data from <a href="https://github.com/razorpay/ifsc">Razorpay's IFSC API</a> and India Post. Not affiliated with either, or with the GST Network or Income Tax Department.</span>
-    <span><a href="{{REPO}}">Source on GitHub</a> · v{{VERSION}} · built by <a href="https://www.linkedin.com/in/adityakhetarpal">Aditya Khetarpal</a></span>
+    <span><a href="{{REPO}}">Source on GitHub</a> · v{{VERSION}} · built by <a href="{{HUB_URL}}" rel="author">Aditya Khetarpal</a>, Data Analyst and AI Builder, Delhi · <a href="https://www.linkedin.com/in/adityakhetarpal">LinkedIn</a></span>
+  </div>
+  <div class="wrap more-wrap">
+    <b>More projects by Aditya Khetarpal</b>
+    {{MORE_PROJECTS}}
   </div>
 </footer>
 
