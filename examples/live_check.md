@@ -1,22 +1,22 @@
-# Live check (2026-11-09 11:30 UTC)
+# Live check (2026-11-16 11:17 UTC)
 
 Real calls to the public APIs through an MCP client session.
 
 | Result | Tool | Arguments | Time |
 |---|---|---|---|
-| ✅ | `lookup_ifsc` | ifsc=HDFC0000001 | 0.73s |
-| ✅ | `lookup_ifsc` | ifsc=KKBK0000261 | 0.76s |
-| ✅ | `lookup_ifsc` | ifsc=SBIN0000691 | 0.8s |
-| ✅ | `lookup_ifsc` | ifsc=HDFC0ZZZZZZ | 0.78s |
-| ✅ | `lookup_pincode` | pincode=110001 | 0.34s |
-| ✅ | `lookup_pincode` | pincode=560001 | 0.97s |
-| ✅ | `lookup_pincode` | pincode=999999 | 0.48s |
-| ✅ | `find_pincode` | place=Connaught Place | 0.3s |
+| ✅ | `lookup_ifsc` | ifsc=HDFC0000001 | 0.72s |
+| ✅ | `lookup_ifsc` | ifsc=KKBK0000261 | 0.71s |
+| ✅ | `lookup_ifsc` | ifsc=SBIN0000691 | 0.7s |
+| ✅ | `lookup_ifsc` | ifsc=HDFC0ZZZZZZ | 0.68s |
+| ✅ | `lookup_pincode` | pincode=110001 | 0.33s |
+| ✅ | `lookup_pincode` | pincode=560001 | 0.32s |
+| ✅ | `lookup_pincode` | pincode=999999 | 0.3s |
+| ✅ | `find_pincode` | place=Connaught Place | 1.0s |
 | ✅ | `check_address` | pincode=560001, city=Bangalore, state=Karnataka | 0.0s |
 | ✅ | `check_address` | pincode=560001, city=Mumbai, state=Maharashtra | 0.0s |
 | ✅ | `validate_gstin` | gstin=27AAPFU0939F1ZV | 0.0s |
 | ✅ | `validate_gstin` | gstin=27AAPFU0939F1ZW | 0.0s |
-| ✅ | `verify_vendor` | gstin=27AAPFU0939F1ZV, pan=AAPFU0939F, ifsc=HDFC0000001, pincode=400018, city=Mumbai, state=Maharashtra | 0.36s |
+| ✅ | `verify_vendor` | gstin=27AAPFU0939F1ZV, pan=AAPFU0939F, ifsc=HDFC0000001, pincode=400018, city=Mumbai, state=Maharashtra | 0.33s |
 | ✅ | `verify_vendor` | gstin=27AAPFU0939F1ZV, pan=AAPFU0939G, ifsc=HDFC0000001, pincode=560001, city=Mumbai, state=Karnataka | 0.0s |
 
 ## Responses

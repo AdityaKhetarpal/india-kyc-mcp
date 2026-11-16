@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-09 11:30 UTC",
+  "checked_at": "2026-11-16 11:17 UTC",
   "passed": 14,
   "total": 14,
   "checks": [
@@ -9,7 +9,7 @@
         "ifsc": "HDFC0000001"
       },
       "ok": true,
-      "seconds": 0.73,
+      "seconds": 0.72,
       "result": {
         "found": true,
         "ifsc": "HDFC0000001",
@@ -36,7 +36,7 @@
         "ifsc": "KKBK0000261"
       },
       "ok": true,
-      "seconds": 0.76,
+      "seconds": 0.71,
       "result": {
         "found": true,
         "ifsc": "KKBK0000261",
@@ -63,7 +63,7 @@
         "ifsc": "SBIN0000691"
       },
       "ok": true,
-      "seconds": 0.8,
+      "seconds": 0.7,
       "result": {
         "found": true,
         "ifsc": "SBIN0000691",
@@ -90,7 +90,7 @@
         "ifsc": "HDFC0ZZZZZZ"
       },
       "ok": true,
-      "seconds": 0.78,
+      "seconds": 0.68,
       "result": {
         "found": false,
         "ifsc": "HDFC0ZZZZZZ",
@@ -104,7 +104,7 @@
         "pincode": "110001"
       },
       "ok": true,
-      "seconds": 0.34,
+      "seconds": 0.33,
       "result": {
         "found": true,
         "pincode": "110001",
@@ -249,7 +249,7 @@
         "pincode": "560001"
       },
       "ok": true,
-      "seconds": 0.97,
+      "seconds": 0.32,
       "result": {
         "found": true,
         "pincode": "560001",
@@ -325,7 +325,7 @@
         "pincode": "999999"
       },
       "ok": true,
-      "seconds": 0.48,
+      "seconds": 0.3,
       "result": {
         "found": false,
         "pincode": "999999",
@@ -339,7 +339,7 @@
         "place": "Connaught Place"
       },
       "ok": true,
-      "seconds": 0.3,
+      "seconds": 1.0,
       "result": {
         "found": true,
         "place": "Connaught Place",
@@ -490,7 +490,7 @@
         "state": "Maharashtra"
       },
       "ok": true,
-      "seconds": 0.36,
+      "seconds": 0.33,
       "result": {
         "verdict": "pass",
         "red_flags": [],
